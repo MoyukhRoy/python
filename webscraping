@@ -1,0 +1,41 @@
+import requests
+from bs4 import BeautifulSoup
+from textblob import TextBlob  # For sentiment analysis
+
+# Define the URL of the product's reviews page on Amazon
+product_url = "https://www.amazon.in/OnePlus-Nord-Black-128GB-Storage/dp/B09WQY65HN/ref=sr_1_3?keywords=oneplus&rnid=1318475031&sr=8-3&th=1#customerReviews"
+
+# Send a request to the URL and get the HTML content
+response = requests.get(product_url)
+html_content = response.content
+
+# Parse the HTML using BeautifulSoup
+soup = BeautifulSoup(html_content, "html.parser")
+
+# Find the review elements on the page
+review_elements = soup.find_all("div", class_="review")
+
+# Initialize lists to store review text and sentiments
+reviews = []
+sentiments = []
+
+# Iterate through review elements
+for review_element in review_elements:
+    review_text = review_element.find("span", class_="review-text").get_text()
+    reviews.append(review_text)
+
+    # Perform sentiment analysis using TextBlob
+    blob = TextBlob(review_text)
+    sentiment_score = blob.sentiment.polarity
+    sentiments.append(sentiment_score)
+
+# Check if any reviews were scraped before calculating the average sentiment score
+if sentiments:
+    average_sentiment = sum(sentiments) / len(sentiments)
+    print("Total reviews:", len(reviews))
+    print("Average sentiment score:", average_sentiment)
+else:
+    print("No reviews found.")
+
+# You can further analyze and visualize the sentiment data
+# For example, create a histogram or plot sentiment over time
